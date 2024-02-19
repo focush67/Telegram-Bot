@@ -74,13 +74,27 @@ bot.command("category", async (ctx) => {
     const response = await axios.get(
       `${api}/products/category/${categoryName}`
     );
+
     const products = await response.data;
-    const productNames = products
-      .map((product: any) => product.title)
-      .join("\n");
-    ctx.reply(
-      `Here are the products for ${categoryName} category:\n\n${productNames}`
-    );
+
+    const randomProducts: any[] = [];
+    while (randomProducts.length < 4) {
+      const rIndex = Math.floor(Math.random() * products.length);
+      if (!randomProducts.includes(rIndex)) {
+        randomProducts.push(rIndex);
+      }
+    }
+
+    for (const i of randomProducts) {
+      let message = ``;
+      message += `Title: *${products[i].title}*\n`;
+      message += `Price: *${products[i].price}*\n`;
+
+      await ctx.replyWithPhoto(products[i].image, {
+        caption: message,
+        parse_mode: "Markdown",
+      });
+    }
   } catch (error) {
     console.log(`Error fetching products for ${categoryName}`);
     ctx.reply(
